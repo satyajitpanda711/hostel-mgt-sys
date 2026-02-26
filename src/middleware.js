@@ -16,10 +16,6 @@ export const middleware = async (req) => {
 
             const { payload } = await jwtVerify(token, SECRET_KEY);
 
-            // console.log("Token received:", token);
-
-            // console.log("Token payload:", payload);
-
             if (req.nextUrl.pathname.startsWith('/admin') && (payload.role !== 'admin' && payload.role !== 'warden')) {
                 console.log(payload.role === 'admin' || payload.role === 'warden');
                 
