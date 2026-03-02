@@ -1,106 +1,150 @@
-'use client'
-import React, { useEffect } from 'react'
-import { BedDoubleIcon, HomeIcon, UtensilsIcon, GraduationCapIcon, MailWarningIcon, Database, CalendarFoldIcon, LucideLogOut } from 'lucide-react'
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import {
+  HomeIcon,
+  GraduationCapIcon,
+  MailWarningIcon,
+  Database,
+  CalendarFoldIcon,
+  LucideLogOut,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
 import axios from 'axios';
 import Loading from '@/app/components/Loading';
 
+/* =========================
+   Stat Card
+========================= */
+const StatCard = ({ title, count, icon: Icon }) => {
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md">
+      <div className="flex items-center justify-between mb-4">
+        <div className="rounded-lg bg-blue-50 p-3 text-blue-600">
+          {Icon && <Icon size={20} />}
+        </div>
+      </div>
 
-const Card = ({ title, count, icon: Icon }) => {
-    return (
-        <div className='bg-white rounded-2xl p-6 border border-gray-300 shadow-lg text-center w-full flex flex-col items-center hover:scale-105 transition-transform duration-300'>
-            {Icon && <Icon size={30} className="text-blue-500 mb-3" />}
-            <h1 className='text-lg md:text-2xl font-bold text-gray-900'>
-                {title}
+      <h3 className="text-sm font-medium text-slate-600">{title}</h3>
+      <p className="text-2xl font-semibold text-slate-900 mt-1">
+        {count}
+      </p>
+    </div>
+  );
+};
+
+/* =========================
+   Quick Action Card
+========================= */
+const ActionCard = ({ title, icon: Icon, href }) => {
+  return (
+    <Link
+      href={href}
+      className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:shadow-md hover:-translate-y-1"
+    >
+      <div className="flex flex-col items-center text-center">
+        <div className="rounded-lg bg-blue-50 p-3 text-blue-600 mb-4">
+          <Icon size={22} />
+        </div>
+        <h4 className="text-sm font-medium text-slate-800">
+          {title}
+        </h4>
+      </div>
+    </Link>
+  );
+};
+
+/* =========================
+   Dashboard
+========================= */
+const Dashboard = () => {
+  const [user, setUser] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [studentNumber, setStudentNumber] = useState(0);
+  const [complaintNumber, setComplaintNumber] = useState(0);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get('/api/admin/dashboard');
+        setUser(response.data.admin);
+        setStudentNumber(response.data.numberOfStudents);
+        setComplaintNumber(response.data.complaints);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) return <Loading />;
+
+  return (
+    <div className="">
+      <div className="max-w-7xl mx-auto space-y-10">
+
+        {/* Welcome Banner */}
+        <Link href="/admin/profile">
+          <div className="rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 p-8 text-white shadow-lg transition hover:shadow-xl">
+            <h1 className="text-2xl md:text-3xl font-semibold">
+              Welcome back, {user.name}
             </h1>
-            <p className='text-gray-600 text-md md:text-xl font-medium'>
-                {count}
+
+            <p className="mt-3 text-sm md:text-base text-blue-100">
+              ID: {user.empId} • Email: {user.email} • Phone: {user.contact}
             </p>
+          </div>
+        </Link>
+
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <StatCard
+            title="Hostel Block"
+            count={user.hostelBlock}
+            icon={HomeIcon}
+          />
+          <StatCard
+            title="Total Students"
+            count={studentNumber}
+            icon={GraduationCapIcon}
+          />
+          <StatCard
+            title="Complaints"
+            count={complaintNumber}
+            icon={MailWarningIcon}
+          />
         </div>
-    );
-}
 
-const QuickActions = () => {
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-lg font-semibold text-slate-900 mb-6">
+            Quick Actions
+          </h2>
 
-    const quick_links = [
-        {
-            title: 'Database',
-            icon: Database,
-            href: '/admin/student_database'
-        },
-        {
-            title: 'Feedback',
-            icon: CalendarFoldIcon
-            ,
-            href: '/admin/feedbacks'
-        },
-        {
-            title: 'Leave',
-            icon: LucideLogOut
-            ,
-            href: '/admin/leave_applications'
-        }
-    ]
-
-    return (
-        <div className='flex justify-center items-center mt-6 flex-col'>
-            <h1 className='text-center md:text-left font-bold mt-6 text-gray-900 flex items-center gap-3 text-2xl mb-6'>
-                Quick Actions
-            </h1>
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-6 w-full'>
-                {quick_links.map((link, index) => (
-                    <Link href={link.href} key={index}>
-                        <Card title={link.title} icon={link.icon} />
-                    </Link>
-                ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <ActionCard
+              title="Student Database"
+              icon={Database}
+              href="/admin/student_database"
+            />
+            <ActionCard
+              title="Feedback"
+              icon={CalendarFoldIcon}
+              href="/admin/feedbacks"
+            />
+            <ActionCard
+              title="Leave Applications"
+              icon={LucideLogOut}
+              href="/admin/leave_applications"
+            />
+          </div>
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
 
-
-const getDashboard = () => {
-    const [user, setUser] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [studentNumber, setStudentNumber] = useState(0);
-    const [complaintNumber, setComplaintNumber] = useState(0);
-    useEffect(() => {
-        const fetchUser = async () => {
-            const response = await axios.get('/api/admin/dashboard');
-            // console.log(response.data.admin);
-            // console.log(response.data);
-            setUser(response.data.admin);
-            setStudentNumber(response.data.numberOfStudents);
-            setComplaintNumber(response.data.complaints);
-            setLoading(false);
-        }
-        fetchUser();
-    }, []);
-
-    return loading ? <Loading /> : (
-        <>
-            <main className='p-1'>
-                <Link href='/admin/profile'>
-                    <div className='w-full rounded-2xl border border-gray-300 text-white bg-gradient-to-r from-gray-900 to-gray-800 p-4 shadow-xl text-center hover:scale-102 transition-transform duration-300'>
-                        <h1 className='text-2xl md:text-4xl font-extrabold mt-20'>
-                            Welcome {user.name}!
-                        </h1>
-                        <p className='text-gray-200 text-lg md:text-md font-medium mt-3'>
-                            ID:{user.empId} | Email: {user.email} |    Phone: {user.contact}
-                        </p>
-                    </div>
-                </Link>
-            </main>
-            <div className='mt-8 grid grid-cols-1 md:grid-cols-3 gap-8'>
-                <Card title='Block' count={user.hostelBlock} icon={HomeIcon} />
-                <Card title='Students' count={studentNumber} icon={GraduationCapIcon} />
-                <Card title='Complaints' count={complaintNumber} icon={MailWarningIcon} />
-            </div>
-            <div>
-                <QuickActions />
-            </div>
-        </>);
-}
-
-export default getDashboard
+export default Dashboard;

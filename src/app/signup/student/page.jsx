@@ -1,191 +1,199 @@
 'use client';
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, UserPlus, Loader2 } from 'lucide-react';
 
 const StudentRegisterPage = () => {
-    const router = useRouter();
-    const [formData, setFormData] = useState({
-        name: '',
-        studentId: '',
-        year: '',
-        dob: '',
-        email: '',
-        password: '',
-        phoneNumber: '',
-        parentPhoneNumber: '',
-        address: '',
-        gender: '',
-        role: 'student'
+  const router = useRouter();
+
+  const [formData, setFormData] = useState({
+    name: '',
+    studentId: '',
+    year: '',
+    dob: '',
+    email: '',
+    password: '',
+    phoneNumber: '',
+    parentPhoneNumber: '',
+    address: '',
+    gender: '',
+    role: 'student',
+  });
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
     });
-    const [error, setError] = useState('');
+    setError('');
+  };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
+    const values = Object.values(formData);
 
-        // Basic validation
-        if (
-            !formData.name ||
-            !formData.studentId ||
-            !formData.year ||
-            !formData.dob ||
-            !formData.email ||
-            !formData.password ||
-            !formData.phoneNumber ||
-            !formData.parentPhoneNumber ||
-            !formData.address ||
-            !formData.gender
-        ) {
-            setError('All fields are required.');
-            return;
-        }
+    if (values.includes('')) {
+      setError('All fields are required.');
+      return;
+    }
 
-        try {
-            console.log(formData);
-            // Add your API call here
-            const res = await axios.post('/api/signup/student', formData);
-            console.log(res.data);
-            
-            if (res.data.success) {
-                router.push('/login/student');
-            }
-            else {
-                setError(res.data.message || 'An error occurred during registration.');
-            }
+    setLoading(true);
 
-            
-        } catch (err) {
-            setError(err.response?.data?.message || 'An error occurred during registration.');
-        }
-    };
+    try {
+      const res = await axios.post('/api/signup/student', formData);
 
-    return (
-        <div className='flex justify-center items-center h-screen bg-gray-50'>
-            <div className='absolute top-0 left-0 p-4'>
-                <button
-                    onClick={() => router.push('/')}
-                    className='bg-blue-300 text-blue-600 font-medium p-2 rounded-lg hover:bg-blue-200 transition-colors duration-300'
-                >
-                    Back
-                </button>
+      if (res.data.success) {
+        router.push('/login/student');
+      } else {
+        setError(res.data.message || 'Registration failed.');
+      }
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          'An error occurred during registration.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center bg-white overflow-hidden py-12">
+      
+      {/* Background */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#e5e7eb_1px,transparent_1px),linear-gradient(to_bottom,#e5e7eb_1px,transparent_1px)] bg-[size:40px_40px] opacity-40" />
+        <div className="absolute top-[-200px] left-1/2 -translate-x-1/2 w-[900px] h-[900px] bg-blue-100 rounded-full blur-3xl opacity-40" />
+      </div>
+
+      <div className="w-full max-w-5xl px-6">
+        
+        {/* Back */}
+        <button
+          onClick={() => router.push('/')}
+          className="mb-6 inline-flex items-center gap-2 text-sm text-slate-600 hover:text-blue-600 transition"
+        >
+          <ArrowLeft size={16} />
+          Back to Home
+        </button>
+
+        {/* Card */}
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-lg p-10">
+          
+          {/* Header */}
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center justify-center rounded-xl bg-blue-50 p-3 text-blue-600 mb-4">
+              <UserPlus size={20} />
             </div>
-            <div className='bg-white rounded-2xl p-6 border border-gray-300 shadow-lg text-center w-full max-w-md'>
-                <h1 className='text-xl md:text-2xl font-bold text-gray-900 mb-6'>
-                    Student Registration
-                </h1>
-                {error && <p className='text-red-500 mb-4'>{error}</p>}
-                <form className='w-full max-w-md' onSubmit={handleSubmit}>
-                    <div className='flex flex-col -mx-2'>
-                        {/* Column 1 */}
-                        <div className='w-full px-2 '>
-                            <input
-                                type='text'
-                                name='name'
-                                placeholder='Full Name'
-                                value={formData.name}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='text'
-                                name='studentId'
-                                placeholder='Student ID'
-                                value={formData.studentId}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='number'
-                                name='year'
-                                placeholder='Year'
-                                value={formData.year}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <label className='text-left text-gray-500 text-sm w-full block mb-2'>
-                                Date of Birth
-                            </label>
-                            <input
-                                type='date'
-                                name='dob'
-                                placeholder='Date of Birth'
-                                value={formData.dob}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='email'
-                                name='email'
-                                placeholder='Email'
-                                value={formData.email}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                        </div>
 
-                        {/* Column 2 */}
-                        <div className='w-full  px-2'>
-                            <input
-                                type='password'
-                                name='password'
-                                placeholder='Password'
-                                value={formData.password}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='tel'
-                                name='phoneNumber'
-                                placeholder='Phone Number'
-                                value={formData.phoneNumber}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='tel'
-                                name='parentPhoneNumber'
-                                placeholder='Parent Phone Number'
-                                value={formData.parentPhoneNumber}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <input
-                                type='text'
-                                name='address'
-                                placeholder='Address'
-                                value={formData.address}
-                                onChange={handleChange}
-                                className='w-full h-10 p-3 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            />
-                            <select
-                                name='gender'
-                                value={formData.gender}
-                                onChange={handleChange}
-                                className='w-full h-10 p-2 border border-gray-300 rounded-lg outline-none focus:border-blue-500 mb-4'
-                            >
-                                <option value=''>Select Gender</option>
-                                <option value='Male'>Male</option>
-                                <option value='Female'>Female</option>
-                                
-                            </select>
-                        </div>
-                    </div>
-                    <button
-                        type='submit'
-                        className='w-full bg-blue-300 text-blue-600 font-medium p-3 rounded-lg hover:bg-blue-200 transition-colors duration-300'
-                    >
-                        Register
-                    </button>
-                </form>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Student Registration
+            </h1>
+
+            <p className="text-sm text-slate-600 mt-2">
+              Create your hostel account
+            </p>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+              {error}
             </div>
+          )}
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-8">
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              
+              {/* LEFT COLUMN */}
+              <div className="space-y-5">
+                <Input label="Full Name" name="name" value={formData.name} onChange={handleChange} />
+                <Input label="Student ID" name="studentId" value={formData.studentId} onChange={handleChange} />
+                <Input label="Year" type="number" name="year" value={formData.year} onChange={handleChange} />
+                <Input label="Date of Birth" type="date" name="dob" value={formData.dob} onChange={handleChange} />
+                <Input label="Email" type="email" name="email" value={formData.email} onChange={handleChange} />
+              </div>
+
+              {/* RIGHT COLUMN */}
+              <div className="space-y-5">
+                <Input label="Password" type="password" name="password" value={formData.password} onChange={handleChange} />
+                <Input label="Phone Number" type="tel" name="phoneNumber" value={formData.phoneNumber} onChange={handleChange} />
+                <Input label="Parent Phone Number" type="tel" name="parentPhoneNumber" value={formData.parentPhoneNumber} onChange={handleChange} />
+                <Input label="Address" name="address" value={formData.address} onChange={handleChange} />
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Gender
+                  </label>
+                  <select
+                    name="gender"
+                    value={formData.gender}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                  >
+                    <option value="">Select Gender</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Registering...
+                </>
+              ) : (
+                'Register'
+              )}
+            </button>
+          </form>
         </div>
-    );
+
+        <p className="text-center text-xs text-slate-500 mt-6">
+          © {new Date().getFullYear()} Hostel Management System
+        </p>
+      </div>
+    </div>
+  );
 };
+
+/* Reusable Input */
+const Input = ({
+  label,
+  type = 'text',
+  name,
+  value,
+  onChange,
+}) => (
+  <div>
+    <label className="block text-sm font-medium text-slate-700 mb-2">
+      {label}
+    </label>
+    <input
+      type={type}
+      name={name}
+      value={value}
+      onChange={onChange}
+      className="w-full rounded-lg border border-slate-300 px-4 py-2.5 text-sm outline-none transition focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+    />
+  </div>
+);
 
 export default StudentRegisterPage;

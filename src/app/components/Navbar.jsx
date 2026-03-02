@@ -19,7 +19,7 @@ const Navbar =  () => {
   return (
     <nav className='z-50 w-full bg-white '>
         <div className='md:px-4 px-2 py-3 mx-auto flex justify-between items-center '>
-            <h1 className='text-xl font-semibold text-gray-800'>HSM</h1>
+            <h1 className='text-xl font-semibold text-gray-800'>HMS</h1>
             <div className='flex items-center gap-4'>
                 <button className='bg-white font-medium text-gray-800 px-4 py-2 rounded-md hover:bg-gray-100 border-2 border-gray-300' onClick={LogOut}>
                     Logout

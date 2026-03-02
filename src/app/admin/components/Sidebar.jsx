@@ -11,8 +11,8 @@ const sidebarData = [
     { title: 'Dashboard', icon: HomeIcon, path: '/admin/dashboard' },
     { title: 'Profile', icon: UserIcon, path: '/admin/profile' },
     { title: 'Students', icon: Database, path: '/admin/student_database' },
-    { title: 'Room Attendance', icon: BedDoubleIcon, path: '/admin/attendance' },
-    { title: 'Booking Requests', icon: ClipboardListIcon, path: '/admin/booking' },
+    // { title: 'Room Attendance', icon: BedDoubleIcon, path: '/admin/attendance' },
+    // { title: 'Booking Requests', icon: ClipboardListIcon, path: '/admin/booking' },
     { title: 'Leave Requests', icon: LogOutIcon, path: '/admin/leaves' },
 
     { title: 'Fee', icon: IndianRupee, path: '/admin/fee' },
